@@ -15,6 +15,8 @@ import com.nikhil.main.services.ProductsServices;
 @Controller
 public class MyController {
 	
+	private static final int noOfProductsToDisplay = 15;
+	
 	@Autowired
 	ProductsServices productsServices;
 	
@@ -27,12 +29,14 @@ public class MyController {
 	public String openAllProductsPage(Model model, @RequestParam(defaultValue = "1") int page) {
 		
 		List<Products> list = productsServices.allProductList();
-		int total_pages = list.size()/10;
+		int total_pages = (int) Math.ceil((double) list.size()/noOfProductsToDisplay);
 		
-		int si = (page - 1) * 10;
-		int ei = page * 10;
+		int si = (page - 1) * noOfProductsToDisplay;
+		int ei = page * noOfProductsToDisplay;
 		
-		model.addAttribute("m_products_obj_list", list.subList(si, ei));
+		int list_last_index = Math.min(ei, list.size());
+		
+		model.addAttribute("m_products_obj_list", list.subList(si, list_last_index));
 		model.addAttribute("m_total_pages", total_pages);
 		
 		return "products";
