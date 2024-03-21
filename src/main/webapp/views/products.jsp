@@ -1,8 +1,11 @@
-<%@page import="com.nikhil.main.others.AllJspMethods"%>
-<%@page import="com.nikhil.main.beans.Products"%>
-<%@page import="java.util.List"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@ page import="com.nikhil.main.others.AllJspMethods"%>
+<%@ page import="com.nikhil.main.beans.Products"%>
+<%@ page import="java.util.List"%>
+<%@ page isELIgnored="false" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+    
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,59 +49,35 @@
 				<th>Price</th>
 				<th>Images</th>
 			</tr>
-			
-			<%
-				List<Products> list = (List<Products>) request.getAttribute("m_products_obj_list");
-				String currPage_str =  request.getParameter("page");
-				int currPage = 1;
-				if(currPage_str != null){
-					currPage = Integer.parseInt(currPage_str);
-				}
-				for(Products product : list){
-					
-					String[] images_arr = product.getImages();
-					
-					%>
-						<tr>
-							<td><%= product.getId() %></td>
-							<td><%= product.getTitle() %></td>
-							<td><%= product.getDescription() %></td>
-							<td><%= product.getPrice() %></td>
-							<td>
-								<%
-									for(String image : images_arr){
-										%>
-											<span> <img alt="" src="<%= image %>" width="100"> </span>
-										<%
-									}
-								%>
-							</td>
-						<tr>
-					<%
-					
-				}
-			%>
-			
+			<c:forEach items="${m_products_obj_list}" var="product">
+				<tr>
+					<td>${product.getId()}</td>
+					<td>${product.getTitle()}</td>
+					<td>${product.getDescription()}</td>
+					<td>${product.getPrice()}</td>
+					<td>
+					<c:forEach items="${product.getImages()}" var="image">
+						<span> <img alt="" src="${image}" width="100" /> </span>
+					</c:forEach>
+					</td>
+				</tr>
+			</c:forEach>
 		</table>
 	</div>
 	
-	<%
-		int total_pages = (int) request.getAttribute("m_total_pages");
-		AllJspMethods allJspMethods = new AllJspMethods();
-	%>
+	<c:set var="total_pages" value="${m_total_pages}"></c:set>
+	<c:set var="allJspMethods" value="<%= new com.nikhil.main.others.AllJspMethods() %>" />
+	<c:set var="currPage" value="1"/>
+	<c:if test="${param.page ne null}">
+		<c:set var="currPage" value="${param.page}" />
+	</c:if>
 	
 	<div style="text-align: center; padding : 20px;">
-		<a href="/Products?page=<%= allJspMethods.prevPage(currPage, total_pages)  %>">Prev</a>
-		<%
-			for(int i=1; i<=total_pages; i++){
-				
-				%>
-					<a href="/Products?page=<%= i %>"><%= i %></a>
-				<%
-				
-			}
-		%>
-		<a href="/Products?page=<%= allJspMethods.nextPage(currPage, total_pages) %>">Next</a>
+		<a href="/Products?page=${allJspMethods.prevPage(currPage,total_pages)}">Prev</a>
+		<c:forEach var="i" begin="1" end="${total_pages}">
+			<a href="/Products?page=${i}">${i}</a>
+		</c:forEach>
+		<a href="/Products?page=${allJspMethods.nextPage(currPage,total_pages)}">Next</a>
 	</div>
 </body>
 </html>
